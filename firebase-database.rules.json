@@ -1,0 +1,123 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "sujaV1": {
+      ".read": false,
+      ".write": false,
+      "users": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+        "$uid": {
+          ".read": "auth != null && ($uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() || data.child('ownerAuthUid').val() === auth.uid || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'))",
+          ".write": "auth != null && !data.exists() && newData.child('ownerAuthUid').val() === auth.uid && newData.child('role').val() === 'player'",
+          ".validate": "newData.hasChildren(['displayName','email','role','ownerAuthUid','loginKey','messageId','messageLookupKey','createdAt']) && newData.child('displayName').isString() && newData.child('displayName').val().length >= 1 && newData.child('displayName').val().length <= 30 && newData.child('email').isString() && newData.child('email').val().length <= 254 && newData.child('loginKey').val().matches(/^[a-f0-9]{64}$/) && newData.child('messageId').val().matches(/^[A-Z0-9]{16}$/) && newData.child('messageLookupKey').val().matches(/^[a-f0-9]{64}$/) && newData.child('createdAt').isNumber() && newData.child('createdAt').val() <= now + 60000 && newData.parent().parent().child('loginLookup').child(newData.child('loginKey').val()).val() === $uid && newData.parent().parent().child('messageIds').child(newData.child('messageId').val()).val() === $uid && newData.parent().parent().child('messageLookup').child(newData.child('messageLookupKey').val()).val() === $uid && newData.parent().parent().child('directory').child($uid).child('role').val() === newData.child('role').val()",
+          "role": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master' && data.parent().exists() && data.val() !== 'master' && (newData.val() === 'player' || newData.val() === 'host')"
+          },
+          "$other": {
+            ".validate": "$other === 'displayName' || $other === 'email' || $other === 'role' || $other === 'ownerAuthUid' || $other === 'loginKey' || $other === 'messageId' || $other === 'messageLookupKey' || $other === 'createdAt'"
+          }
+        }
+      },
+      "directory": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+          ".write": "(auth != null && newData.parent().parent().child('users').child($uid).child('ownerAuthUid').val() === auth.uid && !data.exists()) || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master' && data.exists())",
+          ".validate": "newData.hasChildren(['displayName','role','createdAt']) && newData.child('displayName').val() === newData.parent().parent().child('users').child($uid).child('displayName').val() && newData.child('role').val() === newData.parent().parent().child('users').child($uid).child('role').val() && newData.child('createdAt').val() === newData.parent().parent().child('users').child($uid).child('createdAt').val()",
+          "$other": {
+            ".validate": "$other === 'displayName' || $other === 'role' || $other === 'createdAt'"
+          }
+        }
+      },
+      "loginLookup": {
+        "$key": {
+          ".read": "auth != null",
+          ".write": "auth != null && !data.exists() && newData.isString() && newData.parent().parent().child('users').child(newData.val()).child('ownerAuthUid').val() === auth.uid",
+          ".validate": "$key.matches(/^[a-f0-9]{64}$/) && newData.parent().parent().child('users').child(newData.val()).child('loginKey').val() === $key"
+        }
+      },
+      "sessions": {
+        "$authUid": {
+          ".read": "auth != null && $authUid === auth.uid",
+          ".write": "auth != null && $authUid === auth.uid && (!newData.exists() || (root.child('sujaV1').child('loginLookup').child(newData.child('loginKey').val()).val() === newData.child('profileId').val() && newData.hasChildren(['profileId','loginKey'])))",
+          ".validate": "newData.child('profileId').isString() && newData.child('loginKey').val().matches(/^[a-f0-9]{64}$/)",
+          "$other": {
+            ".validate": "$other === 'profileId' || $other === 'loginKey'"
+          }
+        }
+      },
+      "messageIds": {
+        "$id": {
+          ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+          ".write": "auth != null && !data.exists() && newData.isString() && newData.parent().parent().child('users').child(newData.val()).child('ownerAuthUid').val() === auth.uid",
+          ".validate": "$id.matches(/^[A-Z0-9]{16}$/) && newData.parent().parent().child('users').child(newData.val()).child('messageId').val() === $id"
+        }
+      },
+      "messageLookup": {
+        "$key": {
+          ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+          ".write": "auth != null && !data.exists() && newData.isString() && newData.parent().parent().child('users').child(newData.val()).child('ownerAuthUid').val() === auth.uid",
+          ".validate": "$key.matches(/^[a-f0-9]{64}$/) && newData.parent().parent().child('users').child(newData.val()).child('messageLookupKey').val() === $key"
+        }
+      },
+      "hostRequests": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+        "$uid": {
+          ".read": "(auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()) || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master')",
+          ".write": "(auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && root.child('sujaV1').child('users').child($uid).child('role').val() === 'player') || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master')",
+          ".validate": "newData.hasChildren(['displayName','requestedAt']) && newData.child('displayName').val() === root.child('sujaV1').child('users').child($uid).child('displayName').val() && newData.child('requestedAt').isNumber()",
+          "$other": {
+            ".validate": "$other === 'displayName' || $other === 'requestedAt'"
+          }
+        }
+      },
+      "challenges": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$code": {
+          ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && (root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master' || root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'host') && ((!data.exists() && newData.child('hostId').val() === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && newData.child('hostName').val() === root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('displayName').val() && newData.child('status').val() === 'lobby') || (data.exists() && newData.exists() && (data.child('hostId').val() === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master')) && newData.child('title').val() === data.child('title').val() && newData.child('hostId').val() === data.child('hostId').val() && newData.child('hostName').val() === data.child('hostName').val() && newData.child('seed').val() === data.child('seed').val() && newData.child('createdAt').val() === data.child('createdAt').val() && ((data.child('status').val() === 'lobby' && newData.child('status').val() === 'open') || (data.child('status').val() === 'open' && newData.child('status').val() === 'closed'))))",
+          ".validate": "$code.matches(/^[A-Z0-9]{6}$/) && newData.hasChildren(['title','hostId','hostName','seed','status','createdAt']) && newData.child('title').isString() && newData.child('title').val().length > 0 && newData.child('title').val().length <= 60 && newData.child('seed').isNumber() && newData.child('seed').val() >= 0 && newData.child('seed').val() <= 4294967295 && newData.child('createdAt').isNumber()",
+          "$other": {
+            ".validate": "$other === 'title' || $other === 'hostId' || $other === 'hostName' || $other === 'seed' || $other === 'status' || $other === 'createdAt'"
+          }
+        }
+      },
+      "runs": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && !data.exists() && newData.exists()",
+            ".validate": "$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren(['version','mode','seed','score','level','stood','rejected','delivered','waste','maxCombo','bestFullness','duration','reason','displayName','challengeId','finishedAt']) && newData.child('version').val() === '1.0.0' && (newData.child('mode').val() === 'shift' || newData.child('mode').val() === 'endless') && newData.child('displayName').val() === root.child('sujaV1').child('users').child($uid).child('displayName').val() && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 10000000 && newData.child('duration').isNumber() && newData.child('duration').val() >= 0 && newData.child('duration').val() <= 86400 && (newData.child('mode').val() !== 'shift' || newData.child('duration').val() <= 180) && newData.child('stood').isNumber() && newData.child('stood').val() >= 0 && newData.child('stood').val() <= newData.child('duration').val()*20 + 10 && newData.child('rejected').isNumber() && newData.child('rejected').val() >= 0 && newData.child('rejected').val() <= newData.child('duration').val()*20 + 10 && newData.child('delivered').isNumber() && newData.child('delivered').val() >= 0 && newData.child('delivered').val() <= newData.child('stood').val() && newData.child('waste').isNumber() && newData.child('waste').val() >= 0 && newData.child('waste').val() <= 20 && newData.child('maxCombo').isNumber() && newData.child('maxCombo').val() >= 0 && newData.child('maxCombo').val() <= newData.child('stood').val() && newData.child('bestFullness').isNumber() && newData.child('bestFullness').val() >= 0 && newData.child('bestFullness').val() <= 100 && newData.child('level').isNumber() && newData.child('level').val() >= 1 && newData.child('level').val() <= 10000 && newData.child('seed').isNumber() && newData.child('finishedAt').val() === now && (newData.child('reason').val() === 'Shift complete' || newData.child('reason').val() === 'Line overflow' || newData.child('reason').val() === 'Feeder overflow') && (newData.child('challengeId').val() === '' || (newData.child('challengeId').val().matches(/^[A-Z0-9]{6}$/) && newData.child('mode').val() === 'shift' && root.child('sujaV1').child('challenges').child(newData.child('challengeId').val()).child('status').val() === 'open' && root.child('sujaV1').child('challenges').child(newData.child('challengeId').val()).child('seed').val() === newData.child('seed').val()))",
+            "$other": {
+              ".validate": "$other === 'version' || $other === 'mode' || $other === 'seed' || $other === 'score' || $other === 'level' || $other === 'stood' || $other === 'rejected' || $other === 'delivered' || $other === 'waste' || $other === 'maxCombo' || $other === 'bestFullness' || $other === 'duration' || $other === 'reason' || $other === 'displayName' || $other === 'challengeId' || $other === 'finishedAt'"
+            }
+          }
+        }
+      },
+      "moderation": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+            ".validate": "newData.isBoolean()"
+          }
+        }
+      },
+      "mailboxes": {
+        "$uid": {
+          ".read": "auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()",
+          ".indexOn": [
+            "createdAt"
+          ],
+          "$message": {
+            ".write": "(auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && !newData.exists()) || (auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && !data.exists() && newData.child('fromUid').val() === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && (newData.child('toUid').val() === $uid || newData.child('fromUid').val() === $uid) && newData.child('toUid').val() !== root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && root.child('sujaV1').child('messageLookup').child(newData.child('recipientKey').val()).val() === newData.child('toUid').val())",
+            ".validate": "newData.hasChildren(['fromUid','fromName','fromMessageId','toUid','toName','recipientKey','body','createdAt']) && newData.child('fromName').val() === root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('displayName').val() && newData.child('fromMessageId').val() === root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('messageId').val() && newData.child('toName').val() === root.child('sujaV1').child('users').child(newData.child('toUid').val()).child('displayName').val() && newData.child('recipientKey').val().matches(/^[a-f0-9]{64}$/) && newData.child('body').isString() && newData.child('body').val().length > 0 && newData.child('body').val().length <= 2000 && newData.child('createdAt').val() === now",
+            "$other": {
+              ".validate": "$other === 'fromUid' || $other === 'fromName' || $other === 'fromMessageId' || $other === 'toUid' || $other === 'toName' || $other === 'recipientKey' || $other === 'body' || $other === 'createdAt'"
+            }
+          }
+        }
+      }
+    }
+  }
+}

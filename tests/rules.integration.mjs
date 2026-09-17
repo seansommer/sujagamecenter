@@ -1,0 +1,45 @@
+import{readFile}from'node:fs/promises';import assert from'node:assert/strict';
+const endpoint='http://127.0.0.1:9000';const namespace='demo-suja-test-default-rtdb';
+const token=id=>{const b=v=>Buffer.from(JSON.stringify(v)).toString('base64url');return b({alg:'none',typ:'JWT'})+'.'+b({iss:'https://securetoken.google.com/demo-suja-test',aud:'demo-suja-test',sub:id,user_id:id,iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+3600,auth_time:Math.floor(Date.now()/1000),firebase:{sign_in_provider:'custom',identities:{}}})+'.';};
+async function request(user,path,method='GET',data){const headers={'Content-Type':'application/json'};if(user==='owner')headers.Authorization='Bearer owner';const r=await fetch(endpoint+'/'+path+'.json?ns='+namespace+(user&&user!=='owner'?'&auth='+token(user):''),{method,headers,body:data===undefined?undefined:JSON.stringify(data),signal:AbortSignal.timeout(10000)});const body=await r.json();if(!r.ok)throw new Error('PERMISSION_DENIED: '+JSON.stringify(body));return body;}
+const ref=(user,path)=>({user,path}),set=(r,v)=>request(r.user,r.path,'PUT',v),update=(r,v)=>request(r.user,r.path,'PATCH',v),get=async r=>{const value=await request(r.user,r.path);return {val:()=>value,child:path=>({exists:()=>path.split('/').reduce((v,k)=>v?.[k],value)!=null})};},serverTimestamp=()=>({'.sv':'timestamp'});
+const env={clearDatabase:()=>request('owner','','PUT',null),cleanup:async()=>{},unauthenticatedContext:()=>({database:()=>null}),withSecurityRulesDisabled:fn=>fn({database:()=>'owner'}),authenticatedContext:id=>({database:()=>id})};
+await request('owner','.settings/rules','PUT',JSON.parse(await readFile('firebase-database.rules.json','utf8')));
+const assertSucceeds=p=>p;const assertFails=async p=>{let denied=false;try{await p;}catch(e){if(String(e).includes('PERMISSION_DENIED'))denied=true;else throw e;}assert.equal(denied,true,'Expected request to be denied');};
+let passed=0;const check=async(name,fn)=>{await fn();passed++;console.log('PASS',name);};const db=id=>env.authenticatedContext(id).database(),path=p=>'sujaV1/'+p;
+const profile=(id,name,role='player')=>({displayName:name,email:id+'@example.test',role,ownerAuthUid:id,loginKey:id==='alice'?'a'.repeat(64):id==='bob'?'b'.repeat(64):'c'.repeat(64),messageId:id==='alice'?'A'.repeat(16):id==='bob'?'B'.repeat(16):'C'.repeat(16),messageLookupKey:id==='alice'?'d'.repeat(64):id==='bob'?'e'.repeat(64):'f'.repeat(64),createdAt:Date.now()});
+async function create(id,p){await update(ref(db(id),'sujaV1'),{['users/'+id]:p,['directory/'+id]:{displayName:p.displayName,role:p.role,createdAt:p.createdAt},['loginLookup/'+p.loginKey]:id,['messageIds/'+p.messageId]:id,['messageLookup/'+p.messageLookupKey]:id});await set(ref(db(id),path('sessions/'+id)),{profileId:id,loginKey:p.loginKey});}
+try{await env.clearDatabase();
+ const a=profile('alice','Alice'),b=profile('bob','Bob');
+ await check('atomic new player creation and session login',()=>assertSucceeds(create('alice',a)));
+ await check('second independent player creation',()=>assertSucceeds(create('bob',b)));
+ await check('member directory excludes private email data',async()=>{const s=await assertSucceeds(get(ref(db('alice'),path('directory'))));assert.equal(s.child('bob/email').exists(),false);});
+ await check('other player cannot read private account',()=>assertFails(get(ref(db('alice'),path('users/bob')))));
+ await check('unauthenticated viewer cannot read SUJA directory',()=>assertFails(get(ref(env.unauthenticatedContext().database(),path('directory')))));
+ await check('player cannot self-promote',()=>assertFails(set(ref(db('alice'),path('users/alice/role')),'master')));
+ await check('arbitrary master account creation denied',()=>assertFails(create('mallory',profile('mallory','Sean','master'))));
+ await check('session cannot impersonate another player using the wrong login key',()=>assertFails(set(ref(db('alice'),path('sessions/alice')),{profileId:'bob',loginKey:a.loginKey})));
+ await check('Sean initially registers without elevated access',()=>assertSucceeds(create('sean',profile('sean','Sean'))));
+ await env.withSecurityRulesDisabled(async c=>{await update(ref(c.database(),'sujaV1'),{'users/sean/role':'master','directory/sean/role':'master'});});
+ await check('master host promotion is atomic and directory agrees',()=>assertSucceeds(update(ref(db('sean'),'sujaV1'),{'users/bob/role':'host','directory/bob/role':'host'})));
+ await check('master account cannot be demoted',()=>assertFails(update(ref(db('sean'),'sujaV1'),{'users/sean/role':'player','directory/sean/role':'player'})));
+ const message={fromUid:'alice',fromName:'Alice',fromMessageId:a.messageId,toUid:'bob',toName:'Bob',recipientKey:b.messageLookupKey,body:'Test message',createdAt:serverTimestamp()};
+ await check('message requires valid recipient ID lookup',()=>assertFails(set(ref(db('alice'),path('mailboxes/bob/wrong')),{...message,recipientKey:'0'.repeat(64)})));
+ await check('message delivered atomically to sender and recipient',()=>assertSucceeds(update(ref(db('alice'),'sujaV1'),{'mailboxes/alice/m1':message,'mailboxes/bob/m1':message})));
+ await check('third-party mailbox read denied',()=>assertFails(get(ref(db('sean'),path('mailboxes/bob')))));
+ const challenge={title:'Crew challenge',hostId:'bob',hostName:'Bob',seed:42,status:'lobby',createdAt:serverTimestamp()};
+ await check('host can create a challenge',()=>assertSucceeds(set(ref(db('bob'),path('challenges/ABC234')),challenge)));
+ await check('player cannot open someone else’s challenge',()=>assertFails(update(ref(db('alice'),path('challenges/ABC234')),{status:'open'})));
+ await check('host can open the challenge',()=>assertSucceeds(update(ref(db('bob'),path('challenges/ABC234')),{status:'open'})));
+ const run={version:'1.0.0',mode:'shift',seed:42,score:1200,level:2,stood:80,rejected:5,delivered:60,waste:3,maxCombo:15,bestFullness:70,duration:180,reason:'Shift complete',displayName:'Alice',challengeId:'ABC234',finishedAt:serverTimestamp()};
+ await check('own valid score with matching open challenge seed saves',()=>assertSucceeds(set(ref(db('alice'),path('runs/alice/run12345')),run)));
+ await check('existing score cannot be rewritten',()=>assertFails(set(ref(db('alice'),path('runs/alice/run12345')),{...run,score:9000})));
+ await check('other player’s score cannot be written',()=>assertFails(set(ref(db('bob'),path('runs/alice/run54321')),run)));
+ await check('implausible stats are rejected',()=>assertFails(set(ref(db('alice'),path('runs/alice/run54321')),{...run,stood:999999})));
+ await check('practice cannot submit ranked records',()=>assertFails(set(ref(db('alice'),path('runs/alice/run54321')),{...run,mode:'practice'})));
+ await assertSucceeds(update(ref(db('bob'),path('challenges/ABC234')),{status:'closed'}));
+ await check('closed challenges reject late submissions',()=>assertFails(set(ref(db('alice'),path('runs/alice/run54321')),run)));
+ await check('player cannot moderate scores',()=>assertFails(set(ref(db('alice'),path('moderation/bob/run12345')),true)));
+ await check('master may exclude scores without deleting them',()=>assertSucceeds(set(ref(db('sean'),path('moderation/alice/run12345')),true)));
+ console.log(`${passed} security integration checks passed.`);
+}finally{await env.cleanup();}
