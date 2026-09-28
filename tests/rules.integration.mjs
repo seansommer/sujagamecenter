@@ -53,5 +53,12 @@ try{await env.clearDatabase();
  await check('closed challenges reject late submissions',()=>assertFails(set(ref(db('alice'),path('runs/alice/run54321')),run)));
  await check('player cannot moderate scores',()=>assertFails(set(ref(db('alice'),path('moderation/bob/run12345')),true)));
  await check('master may exclude scores without deleting them',()=>assertSucceeds(set(ref(db('sean'),path('moderation/alice/run12345')),true)));
+ const stacker={version:'1.0.0',game:'pallet-stacker',mode:'arcade',seed:123,score:36000,stacked:120,perfect:60,labels:117,wrongLabels:3,misses:2,maxCombo:22,completed:3,duration:234,won:true,displayName:'Alice',finishedAt:serverTimestamp()};
+ await check('Pallet Stacker saves separately from bottle runs',()=>assertSucceeds(set(ref(db('alice'),path('stackerRuns/alice/stacker1')),stacker)));
+ await check('Pallet Stacker prevents another user writing your score',()=>assertFails(set(ref(db('bob'),path('stackerRuns/alice/stacker2')),stacker)));
+ await check('Pallet Stacker prevents practice ranks',()=>assertFails(set(ref(db('alice'),path('stackerRuns/alice/stacker3')),{...stacker,mode:'practice'})));
+ await check('Pallet Stacker validates complete pallets and label counts',()=>assertFails(set(ref(db('alice'),path('stackerRuns/alice/stacker4')),{...stacker,stacked:119})));
+ await check('Pallet Stacker prevents score overwrite',()=>assertFails(set(ref(db('alice'),path('stackerRuns/alice/stacker1')),{...stacker,score:99999})));
+ await check('Pallet Stacker moderation belongs to master',async()=>{await assertFails(set(ref(db('alice'),path('stackerModeration/alice/stacker1')),true));await assertSucceeds(set(ref(db('sean'),path('stackerModeration/alice/stacker1')),true));});
  console.log(`${passed} security integration checks passed.`);
 }finally{await env.cleanup();}

@@ -15,13 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: seansommer/Pallet-Stacker
+          ref: c4e70d7894709f6293b962dfb370af3a78e4e59f
+          path: .games/pallet-stacker
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - run: npm ci && npm test && npm run build
+        working-directory: .games/pallet-stacker
       - run: npm ci
       - run: npm test
       - run: npm run build
+        env:
+          PALLET_STACKER_DIST: .games/pallet-stacker/dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

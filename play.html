@@ -30,6 +30,8 @@ frame.addEventListener('load',()=>{
   document.getElementById('loading').hidden=true;
  }catch{}
 });
+const isStacker=new URL(location.href).searchParams.get('game')==='pallet-stacker';
+if(isStacker){document.title='Pallet Stacker · SUJA Game Center';frame.title='Pallet Stacker';document.querySelector('#loading strong').textContent='Opening Pallet Stacker…';}
 frame.src=bottlesURL(location.href);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 </script>

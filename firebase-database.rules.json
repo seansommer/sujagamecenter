@@ -117,6 +117,27 @@
             }
           }
         }
+      },
+      "stackerRuns": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && !data.exists() && newData.exists()",
+            ".validate": "$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren([\"version\",\"game\",\"mode\",\"seed\",\"score\",\"stacked\",\"perfect\",\"labels\",\"wrongLabels\",\"misses\",\"maxCombo\",\"completed\",\"duration\",\"won\",\"displayName\",\"finishedAt\"]) && newData.child('version').val() === '1.0.0' && newData.child('game').val() === 'pallet-stacker' && newData.child('mode').val() === 'arcade' && newData.child('displayName').val() === root.child('sujaV1').child('users').child($uid).child('displayName').val() && newData.child('finishedAt').val() === now && newData.child('seed').isNumber() && newData.child('seed').val() >= 0 && newData.child('seed').val() <= 4294967295 && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 200000 && newData.child('stacked').isNumber() && newData.child('stacked').val() >= 0 && newData.child('stacked').val() <= 120 && newData.child('perfect').isNumber() && newData.child('perfect').val() >= 0 && newData.child('perfect').val() <= 120 && newData.child('labels').isNumber() && newData.child('labels').val() >= 0 && newData.child('labels').val() <= 120 && newData.child('wrongLabels').isNumber() && newData.child('wrongLabels').val() >= 0 && newData.child('wrongLabels').val() <= 120 && newData.child('misses').isNumber() && newData.child('misses').val() >= 0 && newData.child('misses').val() <= 8 && newData.child('maxCombo').isNumber() && newData.child('maxCombo').val() >= 0 && newData.child('maxCombo').val() <= 150 && newData.child('completed').isNumber() && newData.child('completed').val() >= 0 && newData.child('completed').val() <= 3 && newData.child('duration').isNumber() && newData.child('duration').val() >= 0 && newData.child('duration').val() <= 7200 && newData.child('labels').val()+newData.child('wrongLabels').val() === newData.child('stacked').val() && newData.child('perfect').val() <= newData.child('labels').val() && newData.child('won').isBoolean() && ((newData.child('won').val() === true && newData.child('completed').val() === 3 && newData.child('stacked').val() === 120 && newData.child('misses').val() < 8) || (newData.child('won').val() === false && newData.child('misses').val() === 8 && newData.child('completed').val() < 3))",
+            "$other": {
+              ".validate": "$other === 'version' || $other === 'game' || $other === 'mode' || $other === 'seed' || $other === 'score' || $other === 'stacked' || $other === 'perfect' || $other === 'labels' || $other === 'wrongLabels' || $other === 'misses' || $other === 'maxCombo' || $other === 'completed' || $other === 'duration' || $other === 'won' || $other === 'displayName' || $other === 'finishedAt'"
+            }
+          }
+        }
+      },
+      "stackerModeration": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+            ".validate": "newData.isBoolean()"
+          }
+        }
       }
     }
   }

@@ -16,3 +16,4 @@ test('hub and Hall of Fame return links leave the frame, unrelated destinations 
  assert.equal(returnToHub('https://seansommer.github.io/bottlesup/',launch),false);
  assert.equal(returnToHub('https://example.com/sujagamecenter/',launch),false);
 });
+test('Pallet Stacker also launches within the installed app scope',()=>{assert.equal(bottlesURL(launch+'?game=pallet-stacker'),'https://seansommer.github.io/sujagamecenter/games/pallet-stacker/');assert.equal(bottlesURL(launch+'?game=https://example.com'),'https://seansommer.github.io/bottlesup/');});
