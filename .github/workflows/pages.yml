@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: seansommer/Pallet-Stacker
-          ref: 73b991da316a53fae70600c5e4b4e6201eb1c9da
+          ref: 9619fb5f089c6542a2537d15cdfe0300099e8076
           path: .games/pallet-stacker
       - uses: actions/setup-node@v4
         with:
