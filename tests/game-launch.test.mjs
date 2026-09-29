@@ -5,7 +5,7 @@ test('launch remains in the installed app scope while loading the existing game'
  const manifest=JSON.parse(await readFile(new URL('../manifest.webmanifest',import.meta.url),'utf8'));
  assert.ok(launch.startsWith(new URL(manifest.scope,'https://seansommer.github.io/sujagamecenter/manifest.webmanifest').href));
  assert.equal(bottlesURL(launch),'https://seansommer.github.io/bottlesup/');
- const html=await readFile(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('href="./play.html"'));assert.ok(!html.includes('href="../bottlesup/"'));
+ const html=await readFile(new URL('../index.html',import.meta.url),'utf8');assert.ok(html.includes('href="./bottles-up.html"'));assert.ok(!html.includes('href="../bottlesup/"'));
 });
 test('hosted challenge survives launch without accepting an arbitrary embedded URL',()=>{
  assert.equal(bottlesURL(launch+'?challenge=ab12cd&url=https://example.com'),'https://seansommer.github.io/bottlesup/?challenge=AB12CD');

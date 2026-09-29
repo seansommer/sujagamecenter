@@ -32,7 +32,7 @@ frame.addEventListener('load',()=>{
 });
 const isStacker=new URL(location.href).searchParams.get('game')==='pallet-stacker';
 if(isStacker){document.title='Pallet Stacker · SUJA Game Center';frame.title='Pallet Stacker';document.querySelector('#loading strong').textContent='Opening Pallet Stacker…';}
-frame.src=bottlesURL(location.href);
+if(isStacker){frame.src=bottlesURL(location.href);}else{const target=new URL('./bottles-up.html',location.href);target.search=location.search;location.replace(target.href);}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
 </script>
 </body>

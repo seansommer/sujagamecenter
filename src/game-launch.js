@@ -1,6 +1,6 @@
 // The top-level launch URL stays inside the installed Game Center's existing scope.
 export function bottlesURL(launchURL){
- const page=new URL(launchURL),game=new URL(page.searchParams.get('game')==='pallet-stacker'?'./games/pallet-stacker/':'../bottlesup/',page);
+ const page=new URL(launchURL),game=new URL(!page.pathname.endsWith('/bottles-up.html')&&page.searchParams.get('game')==='pallet-stacker'?'./games/pallet-stacker/':'../bottlesup/',page);
  const challenge=(page.searchParams.get('challenge')||'').trim().toUpperCase();
  if(/^[A-Z0-9]{6}$/.test(challenge))game.searchParams.set('challenge',challenge);
  return game.href;

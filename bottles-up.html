@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e7efe9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bottles Up! · SUJA Game Center</title>
+<meta name="description" content="Stand them up. Rack up the points. Play Bottles Up! with the SUJA crew. Created by Paul Cruz.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SUJA Game Center">
+<meta property="og:title" content="Bottles Up!">
+<meta property="og:description" content="Stand them up. Rack up the points. Play Bottles Up! with the SUJA crew. Created by Paul Cruz.">
+<meta property="og:url" content="https://seansommer.github.io/sujagamecenter/bottles-up.html">
+<meta property="og:image" content="https://seansommer.github.io/sujagamecenter/assets/bottles-up-share.jpg">
+<meta property="og:image:secure_url" content="https://seansommer.github.io/sujagamecenter/assets/bottles-up-share.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1440">
+<meta property="og:image:height" content="960">
+<meta property="og:image:alt" content="Bottles Up! arcade artwork with colorful SUJA bottles, a conveyor belt, and a glowing mystery box.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bottles Up!">
+<meta name="twitter:description" content="Stand them up. Rack up the points. Play Bottles Up! with the SUJA crew. Created by Paul Cruz.">
+<meta name="twitter:image" content="https://seansommer.github.io/sujagamecenter/assets/bottles-up-share.jpg">
+<meta name="twitter:image:alt" content="Bottles Up! arcade artwork with colorful SUJA bottles, a conveyor belt, and a glowing mystery box.">
+<link rel="canonical" href="https://seansommer.github.io/sujagamecenter/bottles-up.html">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./assets/bottles-up-icon.png">
+<link rel="apple-touch-icon" href="./assets/bottles-up-icon.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#e7efe9;color:#193e2b;font-family:system-ui,sans-serif}body{height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}iframe{display:block;border:0;width:100%;height:100%;background:#e7efe9}#loading{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:12px;background:#e7efe9}#loading[hidden]{display:none}a{color:#08643b}noscript{position:absolute;inset:20%;background:#e7efe9}
+</style>
+</head>
+<body>
+<div id="loading" role="status"><strong>Opening Bottles Up!…</strong><a href="./">Back to Game Center</a></div>
+<iframe id="game" title="Bottles Up!" allow="autoplay; fullscreen; web-share" allowfullscreen></iframe>
+<noscript>Enable JavaScript to play. <a href="./">Back to Game Center</a></noscript>
+<script type="module">
+import {bottlesURL,returnToHub} from './src/game-launch.js';
+const frame=document.getElementById('game');
+frame.addEventListener('load',()=>{
+ if(!frame.getAttribute('src'))return;
+ try{
+  const doc=frame.contentDocument;
+  if(!doc?.getElementById('world'))return;
+  // Keep return navigation in the installed app instead of nesting the hub in the frame.
+  for(const link of doc.querySelectorAll('a[href]'))if(returnToHub(link.href,location.href))link.target='_top';
+  document.getElementById('loading').hidden=true;
+ }catch{}
+});
+frame.src=bottlesURL(location.href);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+</script>
+</body>
+</html>
