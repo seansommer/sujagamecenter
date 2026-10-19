@@ -1,5 +1,10 @@
 # Shared SUJA project instructions
 
+All image generation/editing must use ChatGPT's native image generator.
+Runway credits are scarce; obtain explicit user approval before future Runway
+generation. Discuss direct ElevenLabs setup with the user before generating
+new paid audio. Apply these preferences to the bundled SUJA games.
+
 Read `FIREBASE_RULES.md` and `firebase-rules-status.json` before changing any
 Firebase behavior. The complete rules on this repository's latest `main` are
 the shared source for every SUJA game. Fetch the latest commit before editing
