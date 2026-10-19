@@ -70,5 +70,14 @@ try{await env.clearDatabase();
  await check('Sujalaga valid full campaign finish saves',()=>assertSucceeds(set(ref(db('alice'),path('sujalagaRuns/alice/patrolWin')),{...patrol,wave:16,sectors:4,won:true})));
  await check('Sujalaga endless remains its own score category',()=>assertSucceeds(set(ref(db('alice'),path('sujalagaRuns/alice/patrolInf')),{...patrol,mode:'endless',wave:19,sectors:4})));
  await check('Sujalaga score exclusion is master-only',async()=>{await assertFails(set(ref(db('alice'),path('sujalagaModeration/alice/patrol01')),true));await assertSucceeds(set(ref(db('sean'),path('sujalagaModeration/alice/patrol01')),true));});
+ const pinball={version:'1.0.0',game:'suja-pinball',mode:'arcade',seed:123,score:9200,bottles:3,ramps:5,bumperHits:37,skillShots:1,rushes:0,maxCombo:14,extraBalls:0,duration:180,displayName:'Alice',finishedAt:serverTimestamp()};
+ await check('Pinball saves its own arcade score independently',()=>assertSucceeds(set(ref(db('alice'),path('pinballRuns/alice/pinball1')),pinball)));
+ await check('Pinball crew may read standings',()=>assertSucceeds(get(ref(db('bob'),path('pinballRuns')))));
+ await check('Pinball anonymous standings read is denied',()=>assertFails(get(ref(null,path('pinballRuns')))));
+ await check('Pinball rejects another player writing your score',()=>assertFails(set(ref(db('bob'),path('pinballRuns/alice/pinball2')),pinball)));
+ await check('Pinball prevents edits to existing runs',()=>assertFails(set(ref(db('alice'),path('pinballRuns/alice/pinball1')),{...pinball,score:99999})));
+ for(const [key,value]of [['mode','practice'],['score',-1],['score',1.5],['bottles',4],['rushes',1],['extraBalls',4],['duration',7201],['extra','no'],['displayName','Sean']])await check('Pinball rejects invalid '+key+' '+value,()=>assertFails(set(ref(db('alice'),path('pinballRuns/alice/pinballX')),{...pinball,[key]:value})));
+ await check('Pinball accepts completed recipes with Rainbow Rush',()=>assertSucceeds(set(ref(db('alice'),path('pinballRuns/alice/pinballR')),{...pinball,bottles:4,rushes:1})));
+ await check('Pinball score exclusion is master-only',async()=>{await assertFails(set(ref(db('alice'),path('pinballModeration/alice/pinball1')),true));await assertSucceeds(set(ref(db('sean'),path('pinballModeration/alice/pinball1')),true));});
  console.log(`${passed} security integration checks passed.`);
 }finally{await env.cleanup();}

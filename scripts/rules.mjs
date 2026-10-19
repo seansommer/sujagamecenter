@@ -42,4 +42,17 @@ rules.sujalagaRuns={'.read':member,'$uid':{'$runId':{
 }}};
 rules.sujalagaModeration={'.read':member,'$uid':{'$runId':{'.write':master,'.validate':'newData.isBoolean()'}}};
 
-await writeFile('firebase-database.rules.json',JSON.stringify({rules:{'.read':false,'.write':false,sujaV1:rules}},null,2)+'\n');
+const pinFields=['version','game','mode','seed','score','bottles','ramps','bumperHits','skillShots','rushes','maxCombo','extraBalls','duration','displayName','finishedAt'];
+const pinBounds={seed:[0,4294967295],score:[0,100000000],bottles:[0,10000],ramps:[0,20000],bumperHits:[0,300000],skillShots:[0,10000],rushes:[0,2500],maxCombo:[0,500000],extraBalls:[0,3],duration:[0,7200.05]};
+const pinLimits=Object.entries(pinBounds).map(([key,[min,max]])=>`newData.child('${key}').isNumber() && newData.child('${key}').val() >= ${min} && newData.child('${key}').val() <= ${max}${key==='duration'?'':` && newData.child('${key}').val() % 1 === 0`}`).join(' && ');
+rules.pinballRuns={'.read':member,'$uid':{'$runId':{
+ '.write':`${member} && ${own} && !data.exists() && newData.exists()`,
+ '.validate':`$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren(${JSON.stringify(pinFields)}) && newData.child('version').val() === '1.0.0' && newData.child('game').val() === 'suja-pinball' && newData.child('mode').val() === 'arcade' && newData.child('displayName').val() === ${baseUser}.child('displayName').val() && newData.child('finishedAt').val() === now && ${pinLimits} && newData.child('rushes').val()*4 <= newData.child('bottles').val() && newData.child('bottles').val() < (newData.child('rushes').val()+1)*4 && newData.child('score').val() <= newData.child('duration').val()*1000000+10000`,
+ '$other':{'.validate':pinFields.map(f=>`$other === '${f}'`).join(' || ')}
+}}};
+rules.pinballModeration={'.read':member,'$uid':{'$runId':{'.write':master,'.validate':'newData.isBoolean()'}}};
+
+const output=JSON.stringify({rules:{'.read':false,'.write':false,sujaV1:rules}},null,2)+'\n';
+if(process.argv.includes('--check')){
+ if(await readFile('firebase-database.rules.json','utf8')!==output)throw new Error('Rules source and generated JSON differ. Run npm run rules, review the complete diff, and update firebase-rules-status.json.');
+}else await writeFile('firebase-database.rules.json',output);

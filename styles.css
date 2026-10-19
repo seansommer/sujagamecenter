@@ -14,3 +14,5 @@
 #challenge-mode{font:inherit;border:1px solid #b5c9b6;background:#fafff8;color:#225b37;border-radius:10px;min-height:46px;padding:9px;max-width:100%}.inline-form{flex-wrap:wrap}
 
 .app-game h2{color:#193e2b}.home-grid>.crew-panel{grid-column:1/-1}.stacker-game{background:radial-gradient(ellipse at top,#e6dcf8,#fafff7 70%)}@media(min-width:701px){.home-grid{grid-template-columns:1fr 1fr}}
+
+.pinball-game{background:radial-gradient(ellipse at top,#d8efcf,#fafff7 70%)}:root[data-theme=dark] .pinball-game{background:radial-gradient(ellipse at top,#243e2a,#14271d 70%)}

@@ -159,6 +159,27 @@
             ".validate": "newData.isBoolean()"
           }
         }
+      },
+      "pinballRuns": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && !data.exists() && newData.exists()",
+            ".validate": "$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren([\"version\",\"game\",\"mode\",\"seed\",\"score\",\"bottles\",\"ramps\",\"bumperHits\",\"skillShots\",\"rushes\",\"maxCombo\",\"extraBalls\",\"duration\",\"displayName\",\"finishedAt\"]) && newData.child('version').val() === '1.0.0' && newData.child('game').val() === 'suja-pinball' && newData.child('mode').val() === 'arcade' && newData.child('displayName').val() === root.child('sujaV1').child('users').child($uid).child('displayName').val() && newData.child('finishedAt').val() === now && newData.child('seed').isNumber() && newData.child('seed').val() >= 0 && newData.child('seed').val() <= 4294967295 && newData.child('seed').val() % 1 === 0 && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 100000000 && newData.child('score').val() % 1 === 0 && newData.child('bottles').isNumber() && newData.child('bottles').val() >= 0 && newData.child('bottles').val() <= 10000 && newData.child('bottles').val() % 1 === 0 && newData.child('ramps').isNumber() && newData.child('ramps').val() >= 0 && newData.child('ramps').val() <= 20000 && newData.child('ramps').val() % 1 === 0 && newData.child('bumperHits').isNumber() && newData.child('bumperHits').val() >= 0 && newData.child('bumperHits').val() <= 300000 && newData.child('bumperHits').val() % 1 === 0 && newData.child('skillShots').isNumber() && newData.child('skillShots').val() >= 0 && newData.child('skillShots').val() <= 10000 && newData.child('skillShots').val() % 1 === 0 && newData.child('rushes').isNumber() && newData.child('rushes').val() >= 0 && newData.child('rushes').val() <= 2500 && newData.child('rushes').val() % 1 === 0 && newData.child('maxCombo').isNumber() && newData.child('maxCombo').val() >= 0 && newData.child('maxCombo').val() <= 500000 && newData.child('maxCombo').val() % 1 === 0 && newData.child('extraBalls').isNumber() && newData.child('extraBalls').val() >= 0 && newData.child('extraBalls').val() <= 3 && newData.child('extraBalls').val() % 1 === 0 && newData.child('duration').isNumber() && newData.child('duration').val() >= 0 && newData.child('duration').val() <= 7200.05 && newData.child('rushes').val()*4 <= newData.child('bottles').val() && newData.child('bottles').val() < (newData.child('rushes').val()+1)*4 && newData.child('score').val() <= newData.child('duration').val()*1000000+10000",
+            "$other": {
+              ".validate": "$other === 'version' || $other === 'game' || $other === 'mode' || $other === 'seed' || $other === 'score' || $other === 'bottles' || $other === 'ramps' || $other === 'bumperHits' || $other === 'skillShots' || $other === 'rushes' || $other === 'maxCombo' || $other === 'extraBalls' || $other === 'duration' || $other === 'displayName' || $other === 'finishedAt'"
+            }
+          }
+        }
+      },
+      "pinballModeration": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+            ".validate": "newData.isBoolean()"
+          }
+        }
       }
     }
   }

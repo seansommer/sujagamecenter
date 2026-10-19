@@ -10,6 +10,8 @@
     "dev": "vite",
     "preview": "vite preview --host 0.0.0.0",
     "rules": "node scripts/rules.mjs",
+    "rules:check": "node scripts/rules.mjs --check && node scripts/rules-state.mjs",
+    "rules:compare": "node scripts/rules-state.mjs --compare",
     "test:rules": "firebase emulators:exec --only database --project demo-suja-test \"node tests/rules.integration.mjs\""
   },
   "devDependencies": {

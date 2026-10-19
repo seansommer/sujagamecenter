@@ -22,3 +22,8 @@ test('Sujalaga uses its own dedicated in-scope launch and ignores arbitrary URLs
  assert.equal(bottlesURL('https://seansommer.github.io/sujagamecenter/sujalaga.html'),'https://seansommer.github.io/sujagamecenter/games/sujalaga/');
  assert.equal(bottlesURL('https://seansommer.github.io/sujagamecenter/play.html?game=sujalaga&url=https://example.com'),'https://seansommer.github.io/sujagamecenter/games/sujalaga/');
 });
+
+test('Suja Pinball uses its dedicated in-scope game and never accepts an external embed',()=>{
+ assert.equal(bottlesURL('https://seansommer.github.io/sujagamecenter/pinball.html'),'https://seansommer.github.io/sujagamecenter/games/suja-pinball/');
+ assert.equal(bottlesURL(launch+'?game=suja-pinball&url=https://example.com'),'https://seansommer.github.io/sujagamecenter/games/suja-pinball/');
+});

@@ -12,3 +12,9 @@ test('Sujalaga records separate arcade and endless, exclude practice and moderat
  const [card]=scoreCards({pilot:{displayName:'Pilot'}},{},{},{},{},{pilot:{a:base,b:{...base,mode:'endless',score:1000},p:{...base,mode:'practice',score:9000},h:{...base,score:9999}}},{pilot:{h:true}});
  assert.equal(card.sujalaga,500);assert.equal(card.sujalagaEndless,1000);assert.equal(card.sujalagaFilled,40);assert.equal(card.best,0);assert.equal(card.stacker,0);
 });
+
+test('Pinball player cards keep their own records and exclude practice and moderated scores',()=>{
+ const base={game:'suja-pinball',version:'1.0.0',mode:'arcade',score:4200,bottles:2,ramps:3};
+ const [p]=scoreCards({p:{displayName:'Player'}},{},{},{},{},{},{},{p:{a:base,b:{...base,mode:'practice',score:99999},hidden:{...base,score:9000}}},{p:{hidden:true}});
+ assert.equal(p.pinball,4200);assert.equal(p.pinballBottles,2);assert.equal(p.pinballRamps,3);assert.equal(p.pinballGames,1);assert.equal(p.sujalaga,0);assert.equal(p.best,0);
+});

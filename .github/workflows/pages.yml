@@ -25,6 +25,11 @@ jobs:
           repository: seansommer/Sujalaga
           ref: f5120ecf57b3c116256c7a52879c827d4913b765
           path: .games/sujalaga
+      - uses: actions/checkout@v4
+        with:
+          repository: seansommer/SujaPinball
+          ref: 1ff0a187ea9f4a8e0e5fb8cf662f1c3eae863d15
+          path: .games/suja-pinball
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -33,12 +38,15 @@ jobs:
         working-directory: .games/pallet-stacker
       - run: npm ci && npm test && npm run build
         working-directory: .games/sujalaga
+      - run: npm ci && npm test && npm run build
+        working-directory: .games/suja-pinball
       - run: npm ci
       - run: npm test
       - run: npm run build
         env:
           PALLET_STACKER_DIST: .games/pallet-stacker/dist
           SUJALAGA_DIST: .games/sujalaga/dist
+          PINBALL_DIST: .games/suja-pinball/dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

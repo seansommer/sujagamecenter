@@ -1,0 +1,23 @@
+{
+  "projectId": "suja-game-center",
+  "databaseInstance": "suja-game-center-default-rtdb",
+  "source": {
+    "repository": "seansommer/sujagamecenter",
+    "branch": "main",
+    "path": "firebase-database.rules.json",
+    "generator": "scripts/rules.mjs",
+    "revision": "2026-10-19.pinball.1",
+    "canonicalSha256": "5744e7ef484bd6eaf733505f5523c7e53f7b75ea29bd458e203453476d008d9d"
+  },
+  "lastReportedLive": {
+    "reportedOn": "2026-10-19",
+    "evidence": "User-provided Suja Game Center - Firebase Rules(1).txt, described as current Firebase rules",
+    "canonicalSha256": "ba4a4f3fc05310e8303a491a8ae0eb2407bc10086485b14a09f534c3d55b1074",
+    "matchesRepositoryCommit": "587020d228a3638fc303099dddf203e6ad3c846e",
+    "independentlyVerifiedAgainstFirebase": false
+  },
+  "pendingChangesFromReportedLive": [
+    "Add sujaV1/pinballRuns for owner-created, validated arcade scores",
+    "Add sujaV1/pinballModeration for master-only score exclusion"
+  ]
+}
