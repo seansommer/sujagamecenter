@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: seansommer/SujaPinball
-          ref: aaa4cd9bcc23d4278a582b6814defd180fd6bdd4
+          ref: 17aba31ad41b68288f59eb3b9487bc080f3e10e5
           path: .games/suja-pinball
       - uses: actions/setup-node@v4
         with:
