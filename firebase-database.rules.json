@@ -138,6 +138,27 @@
             ".validate": "newData.isBoolean()"
           }
         }
+      },
+      "sujalagaRuns": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && auth != null && $uid === root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val() && !data.exists() && newData.exists()",
+            ".validate": "$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren([\"version\",\"game\",\"mode\",\"seed\",\"score\",\"filled\",\"maxCombo\",\"wave\",\"sectors\",\"shots\",\"hits\",\"surges\",\"duration\",\"won\",\"displayName\",\"finishedAt\"]) && newData.child('version').val() === '1.0.0' && newData.child('game').val() === 'sujalaga' && (newData.child('mode').val() === 'arcade' || newData.child('mode').val() === 'endless') && newData.child('displayName').val() === root.child('sujaV1').child('users').child($uid).child('displayName').val() && newData.child('finishedAt').val() === now && newData.child('seed').isNumber() && newData.child('seed').val() >= 0 && newData.child('seed').val() <= 4294967295 && newData.child('seed').val() % 1 === 0 && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 100000000 && newData.child('score').val() % 1 === 0 && newData.child('filled').isNumber() && newData.child('filled').val() >= 0 && newData.child('filled').val() <= 100000 && newData.child('filled').val() % 1 === 0 && newData.child('maxCombo').isNumber() && newData.child('maxCombo').val() >= 0 && newData.child('maxCombo').val() <= 100000 && newData.child('maxCombo').val() % 1 === 0 && newData.child('wave').isNumber() && newData.child('wave').val() >= 1 && newData.child('wave').val() <= 10000 && newData.child('wave').val() % 1 === 0 && newData.child('sectors').isNumber() && newData.child('sectors').val() >= 0 && newData.child('sectors').val() <= 2500 && newData.child('sectors').val() % 1 === 0 && newData.child('shots').isNumber() && newData.child('shots').val() >= 0 && newData.child('shots').val() <= 300000 && newData.child('shots').val() % 1 === 0 && newData.child('hits').isNumber() && newData.child('hits').val() >= 0 && newData.child('hits').val() <= 300000 && newData.child('hits').val() % 1 === 0 && newData.child('surges').isNumber() && newData.child('surges').val() >= 0 && newData.child('surges').val() <= 20000 && newData.child('surges').val() % 1 === 0 && newData.child('duration').isNumber() && newData.child('duration').val() >= 0 && newData.child('duration').val() <= 7200.05 && newData.child('hits').val() <= newData.child('shots').val() && newData.child('maxCombo').val() <= newData.child('filled').val() && newData.child('sectors').val()*4 <= newData.child('wave').val() && newData.child('shots').val() <= newData.child('duration').val()*36+8 && newData.child('won').isBoolean() && (newData.child('mode').val() !== 'arcade' || newData.child('wave').val() <= 16) && (newData.child('won').val() === false || (newData.child('mode').val() === 'arcade' && newData.child('wave').val() === 16 && newData.child('sectors').val() === 4))",
+            "$other": {
+              ".validate": "$other === 'version' || $other === 'game' || $other === 'mode' || $other === 'seed' || $other === 'score' || $other === 'filled' || $other === 'maxCombo' || $other === 'wave' || $other === 'sectors' || $other === 'shots' || $other === 'hits' || $other === 'surges' || $other === 'duration' || $other === 'won' || $other === 'displayName' || $other === 'finishedAt'"
+            }
+          }
+        }
+      },
+      "sujalagaModeration": {
+        ".read": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists()",
+        "$uid": {
+          "$runId": {
+            ".write": "auth != null && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).exists() && root.child('sujaV1').child('users').child(root.child('sujaV1').child('sessions').child(auth.uid).child('profileId').val()).child('role').val() === 'master'",
+            ".validate": "newData.isBoolean()"
+          }
+        }
       }
     }
   }

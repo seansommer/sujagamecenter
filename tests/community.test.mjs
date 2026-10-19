@@ -6,3 +6,9 @@ test('host and master permissions stay separate',()=>{assert.equal(isMaster({rol
 
 test('four-juice races stay separate from timed and endless records and require a complete finish',()=>{const base={version:'1.0.0',mode:'race',stood:230,rejected:26,maxCombo:12,completedJuices:4,reason:'Four-juice finish'};const [c]=scoreCards({p:{displayName:'P'}},{p:{a:{...base,score:1200,duration:330},b:{...base,score:1200,duration:300},c:{...base,score:9999,completedJuices:3}}});assert.equal(c.race,1200);assert.equal(c.raceTime,300);assert.equal(c.best,0);assert.equal(c.endless,0);assert.equal(c.games,2);});
 test('Pallet Stacker has independent player-card records and respects moderation',()=>{const run={game:'pallet-stacker',mode:'arcade',score:3000,stacked:20};const [card]=scoreCards({p:{displayName:'Player'}},{},{},{p:{a:run,b:{...run,score:9000}}},{p:{b:true}});assert.equal(card.stacker,3000);assert.equal(card.stackerCases,20);assert.equal(card.best,0);assert.equal(card.bottles,0);});
+
+test('Sujalaga records separate arcade and endless, exclude practice and moderated runs',()=>{
+ const base={game:'sujalaga',version:'1.0.0',mode:'arcade',score:500,filled:20};
+ const [card]=scoreCards({pilot:{displayName:'Pilot'}},{},{},{},{},{pilot:{a:base,b:{...base,mode:'endless',score:1000},p:{...base,mode:'practice',score:9000},h:{...base,score:9999}}},{pilot:{h:true}});
+ assert.equal(card.sujalaga,500);assert.equal(card.sujalagaEndless,1000);assert.equal(card.sujalagaFilled,40);assert.equal(card.best,0);assert.equal(card.stacker,0);
+});

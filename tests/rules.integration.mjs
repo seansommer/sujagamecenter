@@ -60,5 +60,15 @@ try{await env.clearDatabase();
  await check('Pallet Stacker validates complete pallets and label counts',()=>assertFails(set(ref(db('alice'),path('stackerRuns/alice/stacker4')),{...stacker,stacked:119})));
  await check('Pallet Stacker prevents score overwrite',()=>assertFails(set(ref(db('alice'),path('stackerRuns/alice/stacker1')),{...stacker,score:99999})));
  await check('Pallet Stacker moderation belongs to master',async()=>{await assertFails(set(ref(db('alice'),path('stackerModeration/alice/stacker1')),true));await assertSucceeds(set(ref(db('sean'),path('stackerModeration/alice/stacker1')),true));});
+ const patrol={version:'1.0.0',game:'sujalaga',mode:'arcade',seed:123,score:7000,filled:31,maxCombo:14,wave:4,sectors:0,shots:180,hits:120,surges:1,duration:50,won:false,displayName:'Alice',finishedAt:serverTimestamp()};
+ await check('Sujalaga own score saves independently',()=>assertSucceeds(set(ref(db('alice'),path('sujalagaRuns/alice/patrol01')),patrol)));
+ await check('Sujalaga crew may read standings',()=>assertSucceeds(get(ref(db('bob'),path('sujalagaRuns')))));
+ await check('Sujalaga anonymous read is denied',()=>assertFails(get(ref(null,path('sujalagaRuns')))));
+ await check('Sujalaga rejects another player’s score write',()=>assertFails(set(ref(db('bob'),path('sujalagaRuns/alice/patrol02')),patrol)));
+ await check('Sujalaga rejects edits to existing scores',()=>assertFails(set(ref(db('alice'),path('sujalagaRuns/alice/patrol01')),{...patrol,score:99999})));
+ for(const [key,value]of [['mode','practice'],['score',-1],['score',1.5],['score',100000001],['hits',999],['maxCombo',999],['won',true],['extra','no'],['displayName','Sean']])await check('Sujalaga rejects invalid '+key+' '+value,()=>assertFails(set(ref(db('alice'),path('sujalagaRuns/alice/patrolXX')),{...patrol,[key]:value})));
+ await check('Sujalaga valid full campaign finish saves',()=>assertSucceeds(set(ref(db('alice'),path('sujalagaRuns/alice/patrolWin')),{...patrol,wave:16,sectors:4,won:true})));
+ await check('Sujalaga endless remains its own score category',()=>assertSucceeds(set(ref(db('alice'),path('sujalagaRuns/alice/patrolInf')),{...patrol,mode:'endless',wave:19,sectors:4})));
+ await check('Sujalaga score exclusion is master-only',async()=>{await assertFails(set(ref(db('alice'),path('sujalagaModeration/alice/patrol01')),true));await assertSucceeds(set(ref(db('sean'),path('sujalagaModeration/alice/patrol01')),true));});
  console.log(`${passed} security integration checks passed.`);
 }finally{await env.cleanup();}

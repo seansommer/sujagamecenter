@@ -20,17 +20,25 @@ jobs:
           repository: seansommer/Pallet-Stacker
           ref: 9619fb5f089c6542a2537d15cdfe0300099e8076
           path: .games/pallet-stacker
+      - uses: actions/checkout@v4
+        with:
+          repository: seansommer/Sujalaga
+          ref: 9f0eb111f6a14e45da823586c0ffed6e7fcecea2
+          path: .games/sujalaga
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci && npm test && npm run build
         working-directory: .games/pallet-stacker
+      - run: npm ci && npm test && npm run build
+        working-directory: .games/sujalaga
       - run: npm ci
       - run: npm test
       - run: npm run build
         env:
           PALLET_STACKER_DIST: .games/pallet-stacker/dist
+          SUJALAGA_DIST: .games/sujalaga/dist
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

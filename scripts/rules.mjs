@@ -31,4 +31,15 @@ rules.stackerRuns={'.read':member,'$uid':{'$runId':{
  '$other':{'.validate':stackFields.map(f=>`$other === '${f}'`).join(' || ')}
 }}};
 rules.stackerModeration={'.read':member,'$uid':{'$runId':{'.write':master,'.validate':'newData.isBoolean()'}}};
+
+const patrolFields=['version','game','mode','seed','score','filled','maxCombo','wave','sectors','shots','hits','surges','duration','won','displayName','finishedAt'];
+const patrolBounds={seed:[0,4294967295],score:[0,100000000],filled:[0,100000],maxCombo:[0,100000],wave:[1,10000],sectors:[0,2500],shots:[0,300000],hits:[0,300000],surges:[0,20000],duration:[0,7200.05]};
+const patrolLimits=Object.entries(patrolBounds).map(([key,[min,max]])=>`newData.child('${key}').isNumber() && newData.child('${key}').val() >= ${min} && newData.child('${key}').val() <= ${max}${key==='duration'?'':` && newData.child('${key}').val() % 1 === 0`}`).join(' && ');
+rules.sujalagaRuns={'.read':member,'$uid':{'$runId':{
+ '.write':`${member} && ${own} && !data.exists() && newData.exists()`,
+ '.validate':`$runId.matches(/^[a-zA-Z0-9-]{8,80}$/) && newData.hasChildren(${JSON.stringify(patrolFields)}) && newData.child('version').val() === '1.0.0' && newData.child('game').val() === 'sujalaga' && (newData.child('mode').val() === 'arcade' || newData.child('mode').val() === 'endless') && newData.child('displayName').val() === ${baseUser}.child('displayName').val() && newData.child('finishedAt').val() === now && ${patrolLimits} && newData.child('hits').val() <= newData.child('shots').val() && newData.child('maxCombo').val() <= newData.child('filled').val() && newData.child('sectors').val()*4 <= newData.child('wave').val() && newData.child('shots').val() <= newData.child('duration').val()*36+8 && newData.child('won').isBoolean() && (newData.child('mode').val() !== 'arcade' || newData.child('wave').val() <= 16) && (newData.child('won').val() === false || (newData.child('mode').val() === 'arcade' && newData.child('wave').val() === 16 && newData.child('sectors').val() === 4))`,
+ '$other':{'.validate':patrolFields.map(f=>`$other === '${f}'`).join(' || ')}
+}}};
+rules.sujalagaModeration={'.read':member,'$uid':{'$runId':{'.write':master,'.validate':'newData.isBoolean()'}}};
+
 await writeFile('firebase-database.rules.json',JSON.stringify({rules:{'.read':false,'.write':false,sujaV1:rules}},null,2)+'\n');
