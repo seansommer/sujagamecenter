@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: seansommer/Sujalaga
-          ref: 84bd03d8f1b390a97f86f3135cfaf463a149c9dd
+          ref: 4c59aacf9908fde73582fc3ca02bd280db38eb4f
           path: .games/sujalaga
       - uses: actions/setup-node@v4
         with:
